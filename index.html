@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>3D hologram</title>
+    <style>
+        body {
+            background-color: #000000;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding-top: 30vw;
+            position: relative;
+        }
+
+        .grid-item {
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grid-item img {
+            width: 30vw;
+            height: 30vw;
+        }
+
+        .title {
+            color: #949494;
+            text-align: center;
+        }
+
+        /* 文件選擇按鈕外部容器 */
+        .file-input-container {
+            position: relative;
+            display: flex;
+            overflow: hidden;
+            cursor: pointer;
+            justify-content: center;
+        }
+
+        /* 文件選擇按鈕樣式 */
+        .file-input-container input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* 文件選擇按鈕文字樣式 */
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* 滑鼠懸停時的文件選擇按鈕樣式 */
+        .file-input-label:hover {
+            background-color: var(--primary-color-hover);
+        }
+
+        /* 文件選擇按鈕的標籤文字樣式 */
+        .file-input-label span {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="title">3D hologram</h1>
+    <div class="file-input-container">
+        <label class="file-input-label" style="--primary-color: #7d7d7d; --primary-color-hover: #939393;">
+            <span>Select File</span>
+            <input type="file" id="uploadInput" accept="image/*">
+        </label>
+    </div>
+    <div class="container">
+        <div class="grid-item" id="top-left"></div>
+        <div class="grid-item" id="top-middle"></div>
+        <div class="grid-item" id="top-right"></div>
+        <div class="grid-item" id="middle-left"></div>
+        <div class="grid-item" id="middle"></div>
+        <div class="grid-item" id="middle-right"></div>
+        <div class="grid-item" id="bottom-left"></div>
+        <div class="grid-item" id="bottom-middle"></div>
+        <div class="grid-item" id="bottom-right"></div>
+    </div>
+
+    <script>
+        // 監聽文件上傳事件
+        document.getElementById('uploadInput').addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (event) {
+                var img = document.createElement('img');
+                img.src = event.target.result;
+
+                // 旋轉圖片並顯示在九宮格中的相應位置
+                img.onload = function () {
+                    document.getElementById('top-left').innerHTML = '';
+                    document.getElementById('top-middle').innerHTML = '';
+                    document.getElementById('top-right').innerHTML = '';
+                    document.getElementById('middle-left').innerHTML = '';
+                    document.getElementById('middle').innerHTML = '';
+                    document.getElementById('middle-right').innerHTML = '';
+                    document.getElementById('bottom-left').innerHTML = '';
+                    document.getElementById('bottom-middle').innerHTML = '';
+                    document.getElementById('bottom-right').innerHTML = '';
+
+                    // 原始圖片
+                    document.getElementById('top-middle').appendChild(img.cloneNode());
+
+                    // 旋轉90度
+                    var rotated90 = rotateImage(img, 90);
+                    document.getElementById('middle-right').appendChild(rotated90.cloneNode());
+
+                    // 旋轉180度
+                    var rotated180 = rotateImage(img, 180);
+                    document.getElementById('bottom-middle').appendChild(rotated180.cloneNode());
+
+                    // 旋轉270度
+                    var rotated270 = rotateImage(img, 270);
+                    document.getElementById('middle-left').appendChild(rotated270.cloneNode());
+
+                };
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        // 旋轉圖片
+        function rotateImage(image, angle) {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            var width = image.width;
+            var height = image.height;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate((angle * Math.PI) / 180);
+            ctx.drawImage(image, -width / 2, -height / 2, width, height);
+
+            var rotatedImage = new Image();
+            rotatedImage.src = canvas.toDataURL('image/jpeg');
+
+            return rotatedImage;
+        }
+    </script>
+</body>
+
+</html>
